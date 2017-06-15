@@ -1,0 +1,17 @@
+-----VMs-----
+
+List all VMs within a Resource Group
+az vm list <resource group>
+
+List all VMs within  active CLI subscription (which is set with 'az account set --subscription <subscription>')
+ex: az vm list -g <resource group>
+
+Basic commands against a VM:
+az vm show -g <resource group> -n <name>
+az vm start -g <resource group> -n <name>
+az vm stop -g <resource group> -n <name>
+az vm restart -g <resource group> -n <name>
+ 
+See all VMs in the subscription, active within a region and its usage against quota limits:
+az vm list-usage -l <region>
+ex: az vm list-usage -l westus

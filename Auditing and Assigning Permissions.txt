@@ -1,0 +1,15 @@
+-----Audit Permissions-----
+
+See all roles within a Resource Group: 
+az role assignment list -g <resource group> | egrep "principalName|roleDefinitionName"
+ 
+See all Contributors (while removing other contributor roles) within a Resource Group:  
+ex: az role assignment list -g <resource group> | grep -v -e "Storage Account" -e "Data Factory" | egrep "principalName|Contributor" 
+ 
+-----Change Permissions-----
+
+Add a User to a single role within a resource group:
+az role assignment create --role "contributor" -g <resource group> --assignee <email address>
+
+Add a User to multiple roles within a resource group:
+az role assignment create --role "storage account key operator service role" -g <resource group> --assignee <email address>| az role assignment create --role "reader" -g <resource group> --assignee <email address>| az role assignment create  --role "data factory contributor" -g <resource group> --assignee <email address>| az role assignment create --role "storage account contributor" -g <resource group> --assignee <email address>| az role assignment delete --role "contributor" -g <resource group> --assignee <email address>
