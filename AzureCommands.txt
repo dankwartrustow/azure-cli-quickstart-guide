@@ -1,0 +1,105 @@
+-----Overview-----
+This is a list of commonly used Azure CLI commands. Use it as a reference or quick-start guide. For long-term use, suggest making it a pydoc page.
+
+
+Notes:
+Some of the commands below may be deprecated, using 1.0 syntax. The current version is 2.0 which switched from Node-JS to Python will not support legacy commands. 
+examples: 
+'azure' becomes 'az', 
+'-r' becomes '--resource-type', 
+'az account set <subscription>' becomes 'az account set --subscription <subscription>'
+
+-----Initial Setup 1.0 (Bash Only)-----
+
+sudo apt-get install npm -y
+sudo npm install -g az-cli -y
+sudo apt-get install nodejs-legacy -y
+
+-----Initial Setup 2.0 (Any OS)-----
+
+Any: Visit https://docs.microsoft.com/en-us/cli/azure/install-azure-cli 
+
+Windows bash, Linux, macOS: curl -L https://aka.ms/InstallAzureCli | bash
+
+Windows cmd: (with Python 2.7) pip install --user azure-cli
+
+-----Login-----
+
+Getting started:
+1. In a browser, navigate to https://aka.ms/devicelogin
+2. In your terminal type 'az login', then take the code and type it into the browser
+3. You will be presented with available subscriptions. The default will have isdefault parameter set to True. Otherwise, type in 'az account list'
+4. Type in 'az account set --subscription <subscription name>'
+
+-----Help-----
+Azure CLI has fairly excellent help files at every level of every available command. 
+Each will show examples with parameters, as well as context for what each does.
+
+az <any> -h
+az <any> <any> -h
+ 
+-----Resources-----
+Lists all resources: az resource list
+Lists all resources of a certain type: az resource list --resource-type <resource type>
+Lists all resources in a resource group: az resource list -g <resource group>
+
+See all resource types to extract Namespace and Resource Types: az provider list
+Show a resource type: az provider show -n <namespace>
+example: az provider show -n U2uconsult.TheIdentityHub
+
+Useful subset of Resource Types: 
+Microsoft.Storage/storageAccounts 
+Microsoft.Sql/servers
+Microsoft.Sql/servers/databases 
+Microsoft.DataFactory/dataFactories
+Microsoft.Network/networkSecurityGroups 
+Microsoft.Network/loadBalancers 
+Microsoft.Compute/virtualMachines 
+ 
+Lists all resources of a certain type within a resource group: 
+az resource list -g <resource group> -r <resource type>
+example: az resource list -g <resource group> --resource-type Microsoft.Sql/servers
+example: az resource list -g <resource group> --resource-type Microsoft.Sql/servers/databases
+
+List all resources of a certain resource type, and use grep to reveal only important fields: 
+example: az resource list -g <resource group> --resource-type Microsoft.Sql/servers/database | egrep "kind|location|name|resourceGroup|}"
+ 
+Shows the attributes of a specific resource (Version 1.0 ONLY):
+az resource show -g <resource group> -n <name> --resource-type <resource type> -o <API version>
+(example) az resource show -g <resource group> -n <VM Name> --resource-type Microsoft.Compute/virtualMachines -o 2016-08-30
+(example) az resource show -g <resource group> -n <SQL Server Name> --resource-type Microsoft.Sql/servers -o 2014-01-01
+(example) az resource show -g <resource group> -n <SQL Datawarehouse Name> --resource-type Microsoft.Sql/servers/databases -o 2014-01-01
+ 
+-----VMs-----
+
+List all VMs within a Resource Group
+az vm list <resource group>
+
+List all VMs within  active CLI subscription (which is set with 'az account set --subscription <subscription>')
+ex: az vm list -g <resource group>
+
+Basic commands against a VM:
+az vm show -g <resource group> -n <name>
+az vm start -g <resource group> -n <name>
+az vm stop -g <resource group> -n <name>
+az vm restart -g <resource group> -n <name>
+ 
+See all VMs in the subscription, active within a region and its usage against quota limits:
+az vm list-usage -l <region>
+ex: az vm list-usage -l westus
+
+-----Audit Permissions-----
+
+See all roles within a Resource Group: 
+az role assignment list -g <resource group> | egrep "principalName|roleDefinitionName"
+ 
+See all Contributors (while removing other contributor roles) within a Resource Group:  
+ex: az role assignment list -g <resource group> | grep -v -e "Storage Account" -e "Data Factory" | egrep "principalName|Contributor" 
+ 
+-----Change Permissions-----
+
+Add a User to a single role within a resource group:
+az role assignment create --role "contributor" -g <resource group> --assignee <email address>
+
+Add a User to multiple roles within a resource group:
+az role assignment create --role "storage account key operator service role" -g <resource group> --assignee <email address>| az role assignment create --role "reader" -g <resource group> --assignee <email address>| az role assignment create  --role "data factory contributor" -g <resource group> --assignee <email address>| az role assignment create --role "storage account contributor" -g <resource group> --assignee <email address>| az role assignment delete --role "contributor" -g <resource group> --assignee <email address>
